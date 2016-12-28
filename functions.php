@@ -184,3 +184,9 @@ function lime_after_shop_loop_item()
 //add_action( 'woocommerce_after_shop_loop_item_title', 'lime_after_shop_loop_item', 10, 2 );
 
 
+/* Add to the functions.php file of your theme */
+add_filter( 'woocommerce_order_button_text', 'woo_custom_order_button_text' ); 
+
+function woo_custom_order_button_text() {
+    return __( 'Save Items to My Library', 'woocommerce' ); 
+}

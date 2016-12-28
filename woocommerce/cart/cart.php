@@ -133,7 +133,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 			<td colspan="6" class="actions">
 				<a class="button" href="<?php echo WC()->cart->get_cart_url(); ?>?empty-cart"><?php _e( 'Empty Cart', 'woocommerce' ); ?></a>
 
-				<input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update Cart', 'woocommerce' ); ?>" />
+				<input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update', 'woocommerce' ); ?>" />
 				
 				<?php do_action( 'woocommerce_cart_actions' ); ?>
 				

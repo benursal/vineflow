@@ -29,27 +29,42 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 ?>
 <li <?php post_class(); ?>>
 	<?php
-	show_pre( $product );
 	/**
 	 * woocommerce_before_shop_loop_item hook.
 	 *
 	 * @hooked woocommerce_template_loop_product_link_open - 10
 	 */
 	do_action( 'woocommerce_before_shop_loop_item' );
-	
-	echo woocommerce_get_product_thumbnail();
-	
-	?>
-	
-	
-	<?php do_action( 'woocommerce_before_add_to_cart_button' ); ?>
 
-	<a rel="nofollow" href="<?php echo esc_url( $product_url ); ?>" data-quantity="1" data-product_id="<?php echo $product->id;?>" data-product_sku="" class="button product_type_simple add_to_cart_button ajax_add_to_cart">Add to library</a>
-	
-	<?php do_action( 'woocommerce_after_add_to_cart_button' ); ?>
+	/**
+	 * woocommerce_before_shop_loop_item_title hook.
+	 *
+	 * @hooked woocommerce_show_product_loop_sale_flash - 10
+	 * @hooked woocommerce_template_loop_product_thumbnail - 10
+	 */
+	do_action( 'woocommerce_before_shop_loop_item_title' );
 
-	<?php
+	/**
+	 * woocommerce_shop_loop_item_title hook.
+	 *
+	 * @hooked woocommerce_template_loop_product_title - 10
+	 */
+	do_action( 'woocommerce_shop_loop_item_title' );
+	echo 'Woocommerce templates are self explainatory and if a user is capable of handling php then he can simply copy contents from content-single-template.Its ';
+	/**
+	 * woocommerce_after_shop_loop_item_title hook.
+	 *
+	 * @hooked woocommerce_template_loop_rating - 5
+	 * @hooked woocommerce_template_loop_price - 10
+	 */
+	do_action( 'woocommerce_after_shop_loop_item_title' );
 	
+	/**
+	 * woocommerce_after_shop_loop_item hook.
+	 *
+	 * @hooked woocommerce_template_loop_product_link_close - 5
+	 * @hooked woocommerce_template_loop_add_to_cart - 10
+	 */
 	do_action( 'woocommerce_after_shop_loop_item' );
 	?>
 </li>
