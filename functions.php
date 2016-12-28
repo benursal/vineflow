@@ -170,7 +170,17 @@ add_action( 'woocommerce_before_shop_loop', 'cloudways_product_subcategories', 5
 
 function lime_before_shop_loop_item()
 {
-	
+	echo '<div style="padding:20px; border:3px solid black;">';
+}
+//woocommerce_before_shop_loop_item_title
+//add_action( 'woocommerce_before_shop_loop_item_title', 'lime_before_shop_loop_item', 10, 2 );
+
+
+function lime_after_shop_loop_item()
+{
+	echo '</div>';
 }
 
-add_action( 'woocommerce_before_shop_loop_item', 'lime_before_shop_loop_item', 10, 2 );
+//add_action( 'woocommerce_after_shop_loop_item_title', 'lime_after_shop_loop_item', 10, 2 );
+
+

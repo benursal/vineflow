@@ -37,3 +37,7 @@ ul.product-cats li a:hover{
 ul.product-cats li.selected a{
 	font-weight:bold;
 }
+
+.woocommerce .button.product_type_simple:before, .woocommerce .button.single_add_to_cart_button:before{
+	content: "" !important;
+}
