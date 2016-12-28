@@ -74,26 +74,46 @@ function woocommerce_clear_cart_url() {
 function lime_add_to_cart_validation($passed, $product_id, $quantity, $variation_id = '', $variations= '') { 
     global $woocommerce;
 	
-	// check if the item is already in the cart
-	if( woo_in_cart( $product_id ) )
-	{
-		$product = new WC_Product($product_id);
-		
-		wc_add_notice( __( 'You have already added <strong>' . $product->get_title() . '</strong>' , 'woocommerce' ), 'error' );
-		$passed = false;
-	}
-	
-	
 	// validate the number of items in cart if it does not exceed the allowed number
 	//$max_quantity = get_option('ywmmq_cart_maximum_quantity');
 	
 	if( count($woocommerce->cart->get_cart_item_quantities()) == get_option('ywmmq_cart_maximum_quantity') )
 	{
 		wc_add_notice( __( 'You already have completed the number of content items in your library' , 'woocommerce' ), 'error' );
-		$passed = false;
+		return false;
 	}
+	
+	// check if the item is already in the cart
+	if( woo_in_cart( $product_id ) )
+	{
+		$product = new WC_Product($product_id);
+		
+		wc_add_notice( __( 'You have already added <strong>' . $product->get_title() . '</strong>' , 'woocommerce' ), 'error' );
+		return false;
+	}
+	
 	
     return $passed;
 }
+
+function lime_check_login_redirect() {
+    if (
+        ! is_user_logged_in()
+        && (is_woocommerce() || is_cart() || is_checkout())
+    ) {
+        
+		$myaccount_page_id = get_option( 'woocommerce_myaccount_page_id' );
+		
+		if ( $myaccount_page_id ) {
+			wp_redirect( get_permalink( $myaccount_page_id ) );
+		}
+		
+        exit;
+    }
+}
+add_action('template_redirect', 'lime_check_login_redirect');
+
+
+
 
 add_action( 'woocommerce_add_to_cart_validation', 'lime_add_to_cart_validation', 10, 5 );
