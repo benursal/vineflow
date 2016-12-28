@@ -96,6 +96,8 @@ function lime_add_to_cart_validation($passed, $product_id, $quantity, $variation
     return $passed;
 }
 
+add_action( 'woocommerce_add_to_cart_validation', 'lime_add_to_cart_validation', 10, 5 );
+
 function lime_check_login_redirect() {
     if (
         ! is_user_logged_in()
@@ -114,6 +116,61 @@ function lime_check_login_redirect() {
 add_action('template_redirect', 'lime_check_login_redirect');
 
 
+// remove default sorting dropdown
+remove_action( 'woocommerce_before_shop_loop', 'woocommerce_catalog_ordering', 30 );
+
+// Removes showing results
+remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20 );
 
 
-add_action( 'woocommerce_add_to_cart_validation', 'lime_add_to_cart_validation', 10, 5 );
+function cloudways_product_subcategories( $args = array() ) 
+{
+	$parentid = get_queried_object_id();
+    //echo $parentid;
+	//$args = array(
+		//'parent' => $parentid
+	//);
+	
+	// get products
+	$products_array = get_posts( array('post_type' => 'product', 'posts_per_page' => -1) );
+	
+	$total_products = count( $products_array );
+	
+	// get posts for categories
+	$terms = get_terms( 'product_cat' );
+	 
+	if ( $terms ) {
+			 
+		echo '<ul class="product-cats">';
+			echo '<li><b>Categories:</b></li>';
+			$class = ( $parentid == 0 ) ? 'selected' : '';
+			echo '<li class="'.$class.'"><a href="'.get_permalink( woocommerce_get_page_id( 'shop' ) ).'">All (' . $total_products . ')</a></li>';
+			
+			foreach ( $terms as $term ) {
+					//show_pre( $term );
+				$class = ( $parentid == $term->term_id ) ? 'selected' : '';
+				
+				echo '<li class="' . $class . '">';                 
+					
+				echo '<a href="' .  esc_url( get_term_link( $term ) ) . '" class="' . $term->slug . '">';
+					echo $term->name . ' (' . $term->count . ')';
+				echo '</a>';
+																		 
+				echo '</li>';
+																		 
+	 
+		}
+		 
+		echo '</ul>';
+	 
+	}
+}
+
+add_action( 'woocommerce_before_shop_loop', 'cloudways_product_subcategories', 50 );
+
+function lime_before_shop_loop_item()
+{
+	
+}
+
+add_action( 'woocommerce_before_shop_loop_item', 'lime_before_shop_loop_item', 10, 2 );
