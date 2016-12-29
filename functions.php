@@ -190,3 +190,39 @@ add_filter( 'woocommerce_order_button_text', 'woo_custom_order_button_text' );
 function woo_custom_order_button_text() {
     return __( 'Save Items to My Library', 'woocommerce' ); 
 }
+
+
+
+function save_name_on_item_field( $cart_item_data, $product_id ) {
+    if( isset( $_REQUEST['name-on-item'] ) ) {
+        $cart_item_data[ 'name_on_item' ] = $_REQUEST['name-on-item'];
+        /* below statement make sure every add to cart action as unique line item */
+        $cart_item_data['unique_key'] = md5( microtime().rand() );
+    }
+	
+	//show_pre( $_REQUEST['name-on-item'] );
+	
+    return $cart_item_data;
+}
+add_action( 'woocommerce_add_cart_item_data', 'save_name_on_item_field', 10, 2 );
+
+
+
+
+// define the woocommerce_update_cart_validation callback 
+function filter_woocommerce_update_cart_validation( $true, $cart_item_key, $values, $quantity ) { 
+    
+	$items = WC()->cart->get_cart_for_session();
+	$items[$cart_item_key]['quantity'] = 1;
+	$items[$cart_item_key]['wccpf_description'] = $_REQUEST['cart'][$cart_item_key]['item_description'];
+
+	WC()->cart->cart_contents = $items;
+	WC()->cart->set_session();
+	
+	//$_SESSION['tae'] = 'tae';
+	
+    return $true; 
+}; 
+         
+// add the filter 
+add_filter( 'woocommerce_update_cart_validation', 'filter_woocommerce_update_cart_validation', 10, 4 ); 
