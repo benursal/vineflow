@@ -16,6 +16,7 @@
 // Enqueue Parent Stylesheet
 // =============================================================================
 
+
 add_filter( 'x_enqueue_parent_stylesheet', '__return_true' );
 
 
@@ -207,22 +208,71 @@ function save_name_on_item_field( $cart_item_data, $product_id ) {
 add_action( 'woocommerce_add_cart_item_data', 'save_name_on_item_field', 10, 2 );
 
 
+function my_assets() {
+	
+	wp_enqueue_script( 'app_code', get_stylesheet_directory_uri() . '/js/app.js?ver='.date('YmdHis') );
+	wp_localize_script( 'app_code', 'app', array(
+		'ajax_url' => admin_url( 'admin-ajax.php' )
+	));
+}
 
+
+add_action( 'wp_ajax_nopriv_update_item_description', 'update_item_description' );
+add_action( 'wp_ajax_update_item_description', 'update_item_description' );
+
+function update_item_description() {
+	
+	$items = WC()->cart->get_cart_for_session();
+	
+	//$s = json_decode($_REQUEST['cart_items'], TRUE);
+	
+	///print_r($_REQUEST['cart_items'][0]['key']);
+	
+	
+	foreach( $_REQUEST['cart_items'] as $cart_item )
+	{
+		$items[$cart_item['key']]['wccpf_description'] = $cart_item['value'];
+		
+		//print_r( $cart_item );
+	}
+	
+	WC()->cart->cart_contents = $items;
+	WC()->cart->set_session();
+	
+	//print_r( $_REQUEST['cart_items'] );
+	// Always die in functions echoing ajax content
+	die();
+}
+
+
+
+add_action( 'wp_enqueue_scripts', 'my_assets' );
 
 // define the woocommerce_update_cart_validation callback 
 function filter_woocommerce_update_cart_validation( $true, $cart_item_key, $values, $quantity ) { 
     
 	$items = WC()->cart->get_cart_for_session();
-	$items[$cart_item_key]['quantity'] = 1;
+	//$items[$cart_item_key]['quantity'] = 1;
 	$items[$cart_item_key]['wccpf_description'] = $_REQUEST['cart'][$cart_item_key]['item_description'];
 
 	WC()->cart->cart_contents = $items;
 	WC()->cart->set_session();
 	
+	//WC()->cart->set_quantity($cart_item_key, 1);
+	
 	//$_SESSION['tae'] = 'tae';
 	
-    return $true; 
+    return true; 
 }; 
          
 // add the filter 
 add_filter( 'woocommerce_update_cart_validation', 'filter_woocommerce_update_cart_validation', 10, 4 ); 
+
+/**
+ * Set a custom add to cart URL to redirect to
+ * @return string
+ */
+function custom_add_to_cart_redirect() { 
+    return site_url('cart'); 
+}
+add_filter( 'woocommerce_add_to_cart_redirect', 'custom_add_to_cart_redirect' );

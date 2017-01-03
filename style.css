@@ -59,3 +59,7 @@ ul.product-cats li.selected a{
 	position:relative;
 	top:auto !important;
 }
+
+.woocommerce .quantity input[type="number"]{
+	display:none !important;
+}

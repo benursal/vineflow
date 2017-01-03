@@ -20,13 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+//WC()->cart->set_quantity('1ff1de774005f8da13f42943881c655f', 1);
+
 //$items = WC()->cart->get_cart_for_session();
-//$items['514115ffae973ae4ee3b63fe58396a74']['wccpf_description'] = 'bahosss tae';
+//$items['c20ad4d76fe97759aa27a0c99bff6710']['wccpf_description'] = 'bahosss tae';
 //WC()->cart->cart_contents = $items;
 //WC()->cart->set_session();
 
-$items = WC()->cart->get_cart();
-show_pre( $items );
+//$items = WC()->cart->get_cart_item_quantities();//['b6d767d2f8ed5d21a44b0e5886680cb9']['wccpf_description'] = 'stephen benedict';
+//show_pre( $items );
 
 
 //$wp_session = WP_Session::get_instance();
@@ -37,7 +39,7 @@ wc_print_notices();
 
 do_action( 'woocommerce_before_cart' ); ?>
 
-<form action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
+<form action="<?php echo esc_url( wc_get_cart_url() ); ?>" id="my-cart" onsubmit="return false" method="post">
 
 <?php do_action( 'woocommerce_before_cart_table' ); ?>
 
@@ -107,16 +109,18 @@ do_action( 'woocommerce_before_cart' ); ?>
 					</td>
 
 					<td class="product-custom-description">
-						<input type="text" name="cart[<?php echo $cart_item_key;?>][item_description]" value="<?=$cart_item['wccpf_description'];?>" placeholder="Item Title" class="input-text qty text" />
+						<input type="text" name="<?php echo $cart_item_key;?>" value="<?=$cart_item['wccpf_description'];?>" placeholder="Item Title" class="input-text item-title text" />
 						<?php
-							
+							if ( $_product->is_sold_individually() ) {
+								$product_quantity = sprintf( '<input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
+							} else {
 								$product_quantity = woocommerce_quantity_input( array(
 									'input_name'  => "cart[{$cart_item_key}][qty]",
 									'input_value' => $cart_item['quantity'],
 									'max_value'   => $_product->backorders_allowed() ? '' : $_product->get_stock_quantity(),
 									'min_value'   => '0'
 								), $_product, false );
-							
+							}
 
 							echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
 						?>
@@ -130,10 +134,12 @@ do_action( 'woocommerce_before_cart' ); ?>
 		?>
 		<tr>
 			<td colspan="6" style="text-align:right" class="">
-				<a class="button" href="<?php echo WC()->cart->get_cart_url(); ?>?empty-cart"><?php _e( 'Empty Cart', 'woocommerce' ); ?></a>
+				<!--<a class="button" href="<?php echo WC()->cart->get_cart_url(); ?>?empty-cart"><?php _e( 'Empty Cart', 'woocommerce' ); ?></a>-->
+				
+				<a href="<?php echo site_url('shop');?>">Continue Selecting</a>
+				
 				<input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update', 'woocommerce' ); ?>" />
-				<?php woocommerce_button_proceed_to_checkout(); ?>
-
+				
 				
 				
 				<?php do_action( 'woocommerce_cart_actions' ); ?>
@@ -146,6 +152,10 @@ do_action( 'woocommerce_before_cart' ); ?>
 		<?php do_action( 'woocommerce_after_cart_contents' ); ?>
 	</tbody>
 </table>
+
+<div style="text-align:center; margin-top:30px;">
+	<?php woocommerce_button_proceed_to_checkout(); ?>
+</div>
 
 <?php do_action( 'woocommerce_after_cart_table' ); ?>
 
