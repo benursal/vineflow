@@ -165,6 +165,17 @@ function cloudways_product_subcategories( $args = array() )
 		echo '</ul>';
 	 
 	}
+	
+	
+	// mini cart
+	// shows number of items selected
+	echo '<div class="the-mini-cart">
+			<p>You have added</p>
+			<h5 style="font-weight:bold"><b id="cart_item_count">'.WC()->cart->get_cart_contents_count().'</b> item(s)</h5>
+			<h4>Please add <b id="cart_num_items_needed">'.(get_option('ywmmq_cart_maximum_quantity') - WC()->cart->get_cart_contents_count()).'</b> more items</h4>
+			<a href="'.site_url('cart').'">View Your Library</a>
+		  </div>';
+	
 }
 
 add_action( 'woocommerce_before_shop_loop', 'cloudways_product_subcategories', 50 );
@@ -212,7 +223,9 @@ function my_assets() {
 	
 	wp_enqueue_script( 'app_code', get_stylesheet_directory_uri() . '/js/app.js?ver='.date('YmdHis') );
 	wp_localize_script( 'app_code', 'app', array(
-		'ajax_url' => admin_url( 'admin-ajax.php' )
+		'ajax_url' => admin_url( 'admin-ajax.php' ),
+		'max_items_in_cart' => get_option('ywmmq_cart_maximum_quantity'),
+		'cart_contents_count' => WC()->cart->get_cart_contents_count()
 	));
 }
 
