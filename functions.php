@@ -244,7 +244,23 @@ function update_item_description() {
 	die();
 }
 
+add_action( 'wp_ajax_nopriv_remove_item_from_cart', 'remove_item_from_cart' );
+add_action( 'wp_ajax_remove_item_from_cart', 'remove_item_from_cart' );
 
+function remove_item_from_cart()
+{
+	$return = false;
+	foreach( WC()->cart->get_cart() as $key => $val ) {
+       if($val['data']->id == $_REQUEST['product_id'])
+	   {
+			$return = WC()->cart->remove_cart_item($key);
+	   }
+    }
+ 
+	echo $return;
+	//print_r( $_REQUEST['product_id'] );
+	die();
+}
 
 add_action( 'wp_enqueue_scripts', 'my_assets' );
 

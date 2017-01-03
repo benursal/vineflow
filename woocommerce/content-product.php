@@ -35,7 +35,12 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 	 * @hooked woocommerce_template_loop_product_link_open - 10
 	 */
 	do_action( 'woocommerce_before_shop_loop_item' );
-
+	
+	if( woo_in_cart( $product->id ) )
+	{
+		echo '<div class="added-item">';
+	}
+	
 	/**
 	 * woocommerce_before_shop_loop_item_title hook.
 	 *
@@ -53,6 +58,7 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 	
 	
 	echo '<p>' . $product->post->post_content . '</p>';
+	echo '<a rel="nofollow" href="javascript:void(0)" class="button remove-from-cart" data-product_id="'.$product->id.'">Remove From Library</a>';
 	
 	/**
 	 * woocommerce_after_shop_loop_item_title hook.
@@ -62,12 +68,20 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 	 */
 	do_action( 'woocommerce_after_shop_loop_item_title' );
 	
+	
+	
 	/**
 	 * woocommerce_after_shop_loop_item hook.
 	 *
 	 * @hooked woocommerce_template_loop_product_link_close - 5
 	 * @hooked woocommerce_template_loop_add_to_cart - 10
 	 */
+	 
+	if( woo_in_cart( $product->id ) )
+	{
+		echo '</div>'; 
+	}
+	 
 	do_action( 'woocommerce_after_shop_loop_item' );
 	?>
 </li>
