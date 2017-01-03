@@ -50,7 +50,10 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 	 * @hooked woocommerce_template_loop_product_title - 10
 	 */
 	do_action( 'woocommerce_shop_loop_item_title' );
-	echo 'Woocommerce templates are self explainatory and if a user is capable of handling php then he can simply copy contents from content-single-template.Its ';
+	
+	
+	echo '<p>' . $product->post->post_content . '</p>';
+	
 	/**
 	 * woocommerce_after_shop_loop_item_title hook.
 	 *

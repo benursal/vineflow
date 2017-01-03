@@ -109,7 +109,24 @@ do_action( 'woocommerce_before_cart' ); ?>
 					</td>
 
 					<td class="product-custom-description">
-						<input type="text" name="<?php echo $cart_item_key;?>" value="<?=$cart_item['wccpf_description'];?>" placeholder="Item Title" class="input-text item-title text" />
+					
+						<?php
+						
+						$customer_can_add_description = get_post_meta( $product_id, "wccaf_customer_can_add_description", true );
+						
+						
+						if( $customer_can_add_description == 'YES' ) : 
+						?>
+					
+							<input type="text" name="<?php echo $cart_item_key;?>" value="<?=$cart_item['wccpf_description'];?>" placeholder="Item Title" class="input-text item-title text" />
+						
+						<?php else : ?>
+						
+							<span class="muted">No description needed</span>
+						
+						<?php endif; ?>
+
+
 						<?php
 							if ( $_product->is_sold_individually() ) {
 								$product_quantity = sprintf( '<input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );

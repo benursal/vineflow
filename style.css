@@ -63,3 +63,33 @@ ul.product-cats li.selected a{
 .woocommerce .quantity input[type="number"]{
 	display:none !important;
 }
+
+.woocommerce li.product .entry-wrap{
+	display:none !important;
+}
+
+.woocommerce li.product .entry-wrap h3{
+	margin-top:20px !important;
+}
+
+.woocommerce li.product .entry-wrap h3 a,
+.woocommerce li.product .entry-wrap h3 a:hover{
+	color:white !important;
+	text-align:center;
+	font-size:22px;
+	display:block;
+}
+
+.woocommerce li.product .entry-wrap p{
+	color:white;
+	text-align:center;
+	font-size:15px;
+}
+
+.woocommerce li.product .entry-product:hover .entry-wrap{
+	display:block !important;
+}
+
+.muted{
+	color:#c5c9d4
+}

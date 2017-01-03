@@ -276,3 +276,11 @@ function custom_add_to_cart_redirect() {
     return site_url('cart'); 
 }
 add_filter( 'woocommerce_add_to_cart_redirect', 'custom_add_to_cart_redirect' );
+
+add_filter( 'woocommerce_product_add_to_cart_text', 'woo_custom_cart_button_text' );    // < 2.1
+add_filter( 'woocommerce_product_single_add_to_cart_text', 'woo_custom_cart_button_text' );    // 2.1 +
+
+function woo_custom_cart_button_text() {
+ 
+        return __( 'Add to My Library', 'woocommerce' );
+}
