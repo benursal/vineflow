@@ -25,20 +25,21 @@ if ( ! apply_filters( 'woocommerce_order_item_visible', true, $item ) ) {
 }
 ?>
 <tr class="<?php echo esc_attr( apply_filters( 'woocommerce_order_item_class', 'order_item', $item, $order ) ); ?>">
+	<td class="product-image">
+		<?php 
+			$featured_image = get_post_thumbnail_id($product->id); 
+			$image = wp_get_attachment_image_src( $featured_image );
+			$image_full = wp_get_attachment_image_src( $featured_image, 'full' );
+			
+			echo do_shortcode('[image class="my-second-portfolio" src="'.$image[0].'" alt="Example" type="rounded" link="true" href="'.$image_full[0].'" title="Example Image"][lightbox]');
+		?>
+	</td>
 	<td class="product-name">
 		<?php
 			$is_visible        = $product && $product->is_visible();
 			$product_permalink = apply_filters( 'woocommerce_order_item_permalink', $is_visible ? $product->get_permalink( $item ) : '', $item, $order );
 
-			echo apply_filters( 'woocommerce_order_item_name', $product_permalink ? sprintf( '<a href="%s">%s</a>', $product_permalink, $item['name'] ) : $item['name'], $item, $is_visible );
-			
-
-			do_action( 'woocommerce_order_item_meta_start', $item_id, $item, $order );
-
-			$order->display_item_meta( $item );
-			$order->display_item_downloads( $item );
-
-			do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $order );
+			echo '<b style="font-size:18px">'.$item['name'].'</b>';
 		?>
 	</td>
 	<td class="product-total">

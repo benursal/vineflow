@@ -100,19 +100,28 @@ function lime_add_to_cart_validation($passed, $product_id, $quantity, $variation
 add_action( 'woocommerce_add_to_cart_validation', 'lime_add_to_cart_validation', 10, 5 );
 
 function lime_check_login_redirect() {
-    if (
-        ! is_user_logged_in()
-        && (is_woocommerce() || is_cart() || is_checkout())
-    ) {
-        
-		$myaccount_page_id = get_option( 'woocommerce_myaccount_page_id' );
-		
-		if ( $myaccount_page_id ) {
-			wp_redirect( get_permalink( $myaccount_page_id ) );
+    if ( is_woocommerce() || is_cart() || is_checkout() ) 
+	{
+        if( ! is_user_logged_in() )
+		{
+			$myaccount_page_id = get_option( 'woocommerce_myaccount_page_id' );
+			
+			if ( $myaccount_page_id ) {
+				wp_redirect( get_permalink( $myaccount_page_id ) );
+			}
+			
+			exit;
 		}
-		
-        exit;
+		else
+		{
+			if( has_existing_order() )
+			{
+				wp_redirect(site_url('my-account'));
+			}
+		}
     }
+	
+	
 }
 add_action('template_redirect', 'lime_check_login_redirect');
 
@@ -317,9 +326,55 @@ function woo_custom_cart_button_text() {
 
 // define the woocommerce_thankyou callback 
 function action_woocommerce_thankyou( $order_id ) { 
-    // make action magic happen here... 
-	return 'tae';
+    
 }
          
 // add the action 
-add_action( 'woocommerce_thankyou', 'action_woocommerce_thankyou', 10, 1 );
+//add_action( 'woocommerce_thankyou', 'action_woocommerce_thankyou', 10, 1 );
+
+
+/*
+ * Change the order of the endpoints that appear in My Account Page - WooCommerce 2.6
+ * The first item in the array is the custom endpoint URL - ie http://mydomain.com/my-account/my-custom-endpoint
+ * Alongside it are the names of the list item Menu name that corresponds to the URL, change these to suit
+ */
+
+function wpb_woo_my_account_order() {
+	$myorder = array(
+		'dashboard'          => __( 'Home', 'woocommerce' ),
+		'edit-account'       => __( 'Account Details', 'woocommerce' ),
+		'customer-logout'    => __( 'Logout', 'woocommerce' ),
+	);
+	
+	unset( $myorder['downloads'] );
+	unset( $myorder['orders'] );
+	unset( $myorder['edit-address'] );
+	unset( $myorder['payment-methods'] );
+	
+	return $myorder;
+}
+add_filter ( 'woocommerce_account_menu_items', 'wpb_woo_my_account_order' );
+
+
+/* checks if the customer has a current subscription
+ * returns TRUE or FALSE
+ */
+
+function has_existing_order()
+{
+	$customer_orders = new WP_Query( array(
+		'posts_per_page ' => 1,
+		'meta_key'    => '_customer_user',
+		'meta_value'  => get_current_user_id(),
+		'post_type'   => wc_get_order_types(),
+		'post_status' => array_keys( wc_get_order_statuses() ),
+		'date_query' => array(
+			array(
+				'year'  => date('Y'),
+				'month' => date('m')
+			),
+		),
+	));
+	
+	return count( $customer_orders->posts );
+}
