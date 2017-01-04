@@ -313,3 +313,13 @@ function woo_custom_cart_button_text() {
  
         return __( 'Add to My Library', 'woocommerce' );
 }
+
+
+// define the woocommerce_thankyou callback 
+function action_woocommerce_thankyou( $order_id ) { 
+    // make action magic happen here... 
+	return 'tae';
+}
+         
+// add the action 
+add_action( 'woocommerce_thankyou', 'action_woocommerce_thankyou', 10, 1 );
