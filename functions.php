@@ -234,7 +234,7 @@ function my_assets() {
 	wp_localize_script( 'app_code', 'app', array(
 		'ajax_url' => admin_url( 'admin-ajax.php' ),
 		'max_items_in_cart' => get_option('ywmmq_cart_maximum_quantity'),
-		'cart_contents_count' => WC()->cart->get_cart_contents_count()
+		'item_count' => WC()->cart->get_cart_contents_count()
 	));
 }
 
@@ -377,4 +377,39 @@ function has_existing_order()
 	));
 	
 	return count( $customer_orders->posts );
+}
+
+add_filter('wp_nav_menu_objects', 'ad_filter_menu', 10, 2);
+
+function ad_filter_menu($sorted_menu_objects, $args) 
+{
+	
+	$new_menu_objects = $sorted_menu_objects;
+	
+	// check if the user is on the login page
+	// this is determined by checking if there's no active user login and if is_account_page returns TRUE
+	
+	if( !is_user_logged_in() && is_account_page() )
+	{
+		$new_menu_objects = array();
+		echo '<style>.x-brand.text{width:100%;text-align:center;}</style>';
+	}
+	
+	// check if the user has an existing catalog
+	if( has_existing_order() )
+	{
+		$new_menu_objects = array();
+		
+		foreach( $sorted_menu_objects as $menu_obj )
+		{
+			
+			if( $menu_obj->url != site_url('shop').'/' && $menu_obj->url != site_url('cart').'/' )
+			{
+				$new_menu_objects[] = $menu_obj;
+			}
+			
+		}
+	}
+	
+	return $new_menu_objects;
 }

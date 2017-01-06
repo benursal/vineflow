@@ -26,6 +26,8 @@ global $product;
 if ( empty( $product ) || ! $product->is_visible() ) {
 	return;
 }
+
+//show_pre( $product );
 ?>
 <li <?php post_class(); ?>>
 	<?php
@@ -35,6 +37,7 @@ if ( empty( $product ) || ! $product->is_visible() ) {
 	 * @hooked woocommerce_template_loop_product_link_open - 10
 	 */
 	do_action( 'woocommerce_before_shop_loop_item' );
+	
 	
 	if( woo_in_cart( $product->id ) )
 	{

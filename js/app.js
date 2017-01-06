@@ -11,6 +11,8 @@ jQuery(function($){
 		var product_entry = $(this).parent().parent().parent();
 		product_entry.addClass('added-item');
 		
+		app.item_count++;
+		
 		update_mini_cart();
 		
 	});
@@ -42,6 +44,7 @@ jQuery(function($){
 				
 				hide_loader();
 				
+				app.item_count--;
 				update_mini_cart();
 				
 				
@@ -119,11 +122,11 @@ jQuery(function($){
 	
 	function update_mini_cart()
 	{
-		var item_count = $('.added-item').length;
-		var whats_left = app.max_items_in_cart - item_count;
+		//var app.item_count = $('.added-item').length;
+		var whats_left = app.max_items_in_cart - app.item_count;
 		
 		// update cart count
-		$('#cart_item_count').text(item_count);
+		$('#cart_item_count').text(app.item_count);
 		$('#cart_num_items_needed').text(whats_left);
 		
 		if( whats_left <= 0 )
