@@ -503,7 +503,7 @@ function future_products( $query )
 {
 	
 	//show_pre( $wp_query );
-	if(  ! is_admin() && $query->is_main_query() && is_woocommerce() )
+	if(  has_existing_order() && ! is_admin() && $query->is_main_query() && is_woocommerce() )
 	{
 		$meta_query = array(
 			'relation' => 'AND',
@@ -514,9 +514,6 @@ function future_products( $query )
 			)
 		);
 		
-		$query->set( 'post_status', array('publish', 'future') );
-		//$query->set( 'meta_key', 'wccaf_date_of_library' );
-		//$query->set( 'meta_value', '02-2017' );
 		$query->set( 'meta_query', $meta_query );
 		
 	}
