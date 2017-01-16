@@ -71,6 +71,14 @@ function woocommerce_clear_cart_url() {
 	}
 }
 
+function clear_the_cart() 
+{
+    
+	WC()->cart->empty_cart();
+}
+
+add_action('wp_login', 'clear_the_cart');
+
 
 function lime_add_to_cart_validation($passed, $product_id, $quantity, $variation_id = '', $variations= '') { 
     global $woocommerce;
@@ -116,7 +124,11 @@ function lime_check_login_redirect() {
 		{
 			if( has_existing_order() )
 			{
-				wp_redirect(site_url('my-account'));
+				if( !next_month_library_exists() ) // check if there is NO library for next month yet
+				{
+					wp_redirect(site_url('my-account'));
+				}
+				
 			}
 		}
     }
@@ -124,6 +136,35 @@ function lime_check_login_redirect() {
 	
 }
 add_action('template_redirect', 'lime_check_login_redirect');
+
+function next_month_library_exists()
+{
+	$products_array = get_posts( 
+		array(
+			'post_type' => 'product', 
+			'posts_per_page' => -1,
+			'meta_query' => array(
+				'relation' => 'AND',
+				array(
+					'key'     => 'wccaf_date_of_library',
+					'value'   => date('Y-m'),
+					'compare' => '>',
+				)
+			)
+		) 
+	);
+	
+	$total_products = count( $products_array );
+	
+	if( $total_products > 0 )
+	{
+		return true;
+	}
+	{
+		return false;
+	}
+	
+}
 
 
 // remove default sorting dropdown
@@ -142,7 +183,20 @@ function cloudways_product_subcategories( $args = array() )
 	//);
 	
 	// get products
-	$products_array = get_posts( array('post_type' => 'product', 'posts_per_page' => -1) );
+	$products_array = get_posts( 
+		array(
+			'post_type' => 'product', 
+			'posts_per_page' => -1,
+			'meta_query' => array(
+				'relation' => 'AND',
+				array(
+					'key'     => 'wccaf_date_of_library',
+					'value'   => date('Y-m'),
+					'compare' => '>',
+				)
+			)
+		) 
+	);
 	
 	$total_products = count( $products_array );
 	
@@ -412,4 +466,60 @@ function ad_filter_menu($sorted_menu_objects, $args)
 	}
 	
 	return $new_menu_objects;
+}
+
+add_filter('manage_product_posts_columns' , 'add_product_columns');
+function add_product_columns($columns) {
+    //show_pre( $columns );
+	unset($columns['tags']);
+    return array_merge($columns,
+          array('library_date' => 'Library Date'));
+}
+
+add_filter('manage_edit_product_columns' , 'edit_product_columns', 10, 1);
+function edit_product_columns($columns) {
+    show_pre( $columns );
+	unset($columns['tags']);
+    return array_merge($columns,
+          array('library_date' => 'Library Date'));
+}
+
+
+add_action('manage_product_posts_custom_column' , 'product_custom_columns', 10, 2 );
+function product_custom_columns( $column, $post_id ) {
+    switch ( $column ) {
+
+    case 'library_date' :
+        echo get_post_meta($post_id, 'wccaf_date_of_library', true);
+        break;
+    }
+}
+
+
+
+add_action( 'pre_get_posts', 'future_products' );
+
+function future_products( $query )
+{
+	
+	//show_pre( $wp_query );
+	if(  ! is_admin() && $query->is_main_query() && is_woocommerce() )
+	{
+		$meta_query = array(
+			'relation' => 'AND',
+			array(
+				'key'     => 'wccaf_date_of_library',
+				'value'   => date('Y-m'),
+				'compare' => '>',
+			)
+		);
+		
+		$query->set( 'post_status', array('publish', 'future') );
+		//$query->set( 'meta_key', 'wccaf_date_of_library' );
+		//$query->set( 'meta_value', '02-2017' );
+		$query->set( 'meta_query', $meta_query );
+		
+	}
+	
+	return $query;
 }

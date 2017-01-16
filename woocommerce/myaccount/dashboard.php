@@ -47,7 +47,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	
 	if( has_existing_order() )
 	{
-		echo do_shortcode('[alert type="info" close="false" heading="Welcome"]Welcome to your content library for the month of <strong>'. date('F') . '</strong>[/alert]');
+		echo do_shortcode('[alert type="info" close="false" heading="Welcome"]Welcome to your content library for the month of <strong>'. strtoupper(date('F')) . '</strong>[/alert]');
+		
+		if( next_month_library_exists() )
+		{
+			$d = new DateTime();
+			$d->modify( 'last day of next month' );
+			$next_month = strtoupper($d->format( 'F' ));
+			
+			echo do_shortcode('[alert type="success" close="true" heading="New Content Library!"]We\'re pleased to announce that the content library for the month of <strong>'. $next_month . '</strong> is now available.  
+			<p style="text-align:center; margin-top:20px;"><a href="'.site_url('shop').'" class="button">Click here to view library</a></p>[/alert]');
+		}
+		
 	}
 	else
 	{
