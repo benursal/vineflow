@@ -139,21 +139,16 @@ add_action('template_redirect', 'lime_check_login_redirect');
 
 function next_month_library_exists()
 {
-	$d = new DateTime();
-	$d->modify( 'last day of next month' );
-	$next_month = strtoupper($d->format( 'm/Y' ));
-	
-	//echo $next_month;
-	
 	$products_array = get_posts( 
 		array(
 			'post_type' => 'product', 
 			'posts_per_page' => -1,
-			'tax_query' => array(	
+			'meta_query' => array(
+				'relation' => 'AND',
 				array(
-					'taxonomy'     => 'libraries',
-					'field'   => 'name',
-					'terms' => $next_month,
+					'key'     => 'wccaf_date_of_library',
+					'value'   => date('Y-m'),
+					'compare' => '>',
 				)
 			)
 		) 
@@ -433,7 +428,6 @@ function has_existing_order()
 				'month' => date('m')
 			),
 		),
-		
 	));
 	
 	return count( $customer_orders->posts );
@@ -465,10 +459,18 @@ function ad_filter_menu($sorted_menu_objects, $args)
 		foreach( $sorted_menu_objects as $menu_obj )
 		{
 			
-			if( $menu_obj->url != site_url('shop').'/' && $menu_obj->url != site_url('cart').'/' )
+			if( $menu_obj->url != site_url('shop').'/' && $menu_obj->url != site_url('cart').'/' && $menu_obj->url != site_url('my-account/?month=next') )
 			{
+				
 				$new_menu_objects[] = $menu_obj;
 				
+			}
+			else
+			{
+				if( $menu_obj->url == site_url('my-account/?month=next') && $existing_order == 2 )
+				{
+					$new_menu_objects[] = $menu_obj;
+				}
 			}
 			
 		}
@@ -515,38 +517,16 @@ function future_products( $query )
 	if( ! is_admin() && $query->is_main_query() && is_woocommerce() )
 	{
 		
-		if( has_existing_order() && next_month_library_exists() )
+		if( has_existing_order() )
 		{
-			if( isset($_REQUEST['month']) && $_REQUEST['month'] != date('m-Y'))
-			{
-				$month = str_replace('-', '/', $_REQUEST['month']);
-			}
-			else
-			{
-				$d = new DateTime();
-				$d->modify( 'last day of next month' );
-				$month = $d->format( 'm/Y' );
-			}
-			
-			//echo $month;
+			$compare = '>';
 		}
 		else
 		{
-			$month = date('m/Y');
+			$compare = '=';
 		}
 		
-		$tax_query = array(	
-			array(
-				'taxonomy'     => 'libraries',
-				'field'   => 'name',
-				'terms' => $month,
-			)
-		);
-		
-		$query->set( 'tax_query', $tax_query ); 
-		
-		
-		/* $meta_query = array(
+		$meta_query = array(
 			'relation' => 'AND',
 			array(
 				'key'     => 'wccaf_date_of_library',
@@ -555,50 +535,10 @@ function future_products( $query )
 			)
 		);
 		
-		$query->set( 'meta_query', $meta_query ); */
+		$query->set( 'meta_query', $meta_query );
 		
 		
 	}
 	
 	return $query;
-}
-
-
-
-
-//hook into the init action and call create_book_taxonomies when it fires
-add_action( 'init', 'create_library_hierarchical_taxonomy', 0 );
-
-//create a custom taxonomy name it topics for your posts
-
-function create_library_hierarchical_taxonomy() {
-
-// Add new taxonomy, make it hierarchical like categories
-//first do the translations part for GUI
-
-  $labels = array(
-    'name' => _x( 'Libraries', 'taxonomy general name' ),
-    'singular_name' => _x( 'Library', 'taxonomy singular name' ),
-    'search_items' =>  __( 'Search Libraries' ),
-    'all_items' => __( 'All Libraries' ),
-    'parent_item' => __( 'Parent Library' ),
-    'parent_item_colon' => __( 'Parent Library:' ),
-    'edit_item' => __( 'Edit Library' ), 
-    'update_item' => __( 'Update Library' ),
-    'add_new_item' => __( 'Add New Library' ),
-    'new_item_name' => __( 'New Library Name' ),
-    'menu_name' => __( 'Libraries' ),
-  ); 	
-
-// Now register the taxonomy
-
-  register_taxonomy('libraries',array('product'), array(
-    'hierarchical' => true,
-    'labels' => $labels,
-    'show_ui' => true,
-    'show_admin_column' => true,
-    'query_var' => true,
-    'rewrite' => array( 'slug' => 'library' ),
-  ));
-
 }

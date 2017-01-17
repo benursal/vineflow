@@ -60,7 +60,10 @@ if ( empty( $product ) ){//|| ! $product->is_visible() ) {
 	do_action( 'woocommerce_shop_loop_item_title' );
 	
 	
-	echo '<p>' . $product->post->post_content . '</p>';
+	
+	$content = ( $product->post->post_excerpt != '' ) ? $product->post->post_excerpt : $product->post->post_content;
+	
+	echo '<p>' . $content . '</p>';
 	echo '<a rel="nofollow" href="javascript:void(0)" class="button remove-from-cart" data-product_id="'.$product->id.'">Remove From Library</a>';
 	
 	/**

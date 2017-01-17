@@ -43,19 +43,11 @@ if ( $order ) : ?>
 
 	<?php else : ?>
 
-		<h2 class="woocommerce-thankyou-order-received" style="margin-top:0"><?php echo apply_filters( 'woocommerce_thankyou_order_received_text', __( 'Thank you. Your order has been received.', 'woocommerce' ), $order ); ?></h2>
+		<h2 class="woocommerce-thankyou-order-received" style="margin-top:0"><?php echo apply_filters( 'woocommerce_thankyou_order_received_text', __( 'You have successfully created a new content catalog!', 'woocommerce' ), $order ); ?></h2>
 		<br />
-		<ul class="woocommerce-thankyou-order-details order_details">
-			<li class="order">
-				<?php _e( 'Reference Number:', 'woocommerce' ); ?>
-				<strong><?php echo $order->get_order_number(); ?></strong>
-			</li>
-			<li class="date">
-				<?php _e( 'Date:', 'woocommerce' ); ?>
-				<strong><?php echo date_i18n( get_option( 'date_format' ), strtotime( $order->order_date ) ); ?></strong>
-			</li>
-			
-		</ul>
+		<p>
+			<a href="<?php echo site_url('my-account');?>" class="button">Go to My Content Catalog</a>
+		</p>
 		<div class="clear"></div>
 
 	<?php endif; ?>

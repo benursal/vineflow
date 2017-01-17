@@ -46,30 +46,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	
 	$existing_library = has_existing_order();
 	
-	
-	$d = new DateTime();
-	$d->modify( 'last day of next month' );
-	$next_month = strtoupper($d->format( 'F' ));
-	$next_month_param = strtoupper($d->format( 'm-Y' ));
-
 	if( $existing_library )
 	{
-		if( $existing_library > 1 && isset( $_REQUEST['month'] ) )
-		{
-			$catalog_month = $next_month;
-		}
-		else
-		{
-			$catalog_month = date('F');
-		}
-		
-		echo do_shortcode('[alert type="info" close="false" heading="Welcome"]Welcome to your content catalog for the month of <strong style="font-size:18px">'. strtoupper( $catalog_month ) . '</strong>[/alert]');
+		echo do_shortcode('[alert type="info" close="false" heading="Welcome"]Welcome to your content library for the month of <strong>'. strtoupper(date('F')) . '</strong>[/alert]');
 		
 		if( next_month_library_exists() && $existing_library == 1 )
 		{
+			$d = new DateTime();
+			$d->modify( 'last day of next month' );
+			$next_month = strtoupper($d->format( 'F' ));
 			
 			echo do_shortcode('[alert type="success" close="true" heading="New Content Library!"]We\'re pleased to announce that the content library for the month of <strong>'. $next_month . '</strong> is now available.  
-			<p style="text-align:center; margin-top:20px;"><a href="'.site_url('shop').'/?month='.$next_month_param.'" class="button">Click here to view library</a></p>[/alert]');
+			<p style="text-align:center; margin-top:20px;"><a href="'.site_url('shop').'" class="button">Click here to view library</a></p>[/alert]');
 		}
 		
 	}
@@ -87,8 +75,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	
 	//$_REQUEST['month'];
 	
-	//echo $existing_library;
-	
 	$args = array(
 				'posts_per_page ' => 1,
 				'order' => 'DESC',
@@ -103,13 +89,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					),
 				)
 			);
-	
-	// if there is more than 1 order for this month, that means the has already created a catalog for next month
-	// if that is the case, we'll get the FIRST row/record
-	if( $existing_library > 1 && !isset( $_REQUEST['month']) )
-	{
-		$args['order'] = 'ASC';
-	}
 	
 	$customer_orders = new WP_Query( $args );
 	
