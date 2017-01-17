@@ -77,6 +77,24 @@ function clear_the_cart()
 	WC()->cart->empty_cart();
 }
 
+add_action( 'init', 'woocommerce_remove_item_from_cart' );
+
+function woocommerce_remove_item_from_cart()
+{
+	if ( isset( $_GET['remove_product'] ) ) 
+	{
+		foreach( WC()->cart->get_cart() as $key => $val ) {
+			
+			if($val['data']->id == $_GET['remove_product'])
+			{
+				$return = WC()->cart->remove_cart_item($key);
+			}
+		
+		}
+	}
+}
+
+
 add_action('wp_login', 'clear_the_cart');
 
 
@@ -108,7 +126,7 @@ function lime_add_to_cart_validation($passed, $product_id, $quantity, $variation
 add_action( 'woocommerce_add_to_cart_validation', 'lime_add_to_cart_validation', 10, 5 );
 
 function lime_check_login_redirect() {
-    if ( is_woocommerce() || is_cart() || is_checkout() ) 
+    if ( is_woocommerce() || is_cart() || is_checkout() || is_product() ) 
 	{
         if( ! is_user_logged_in() )
 		{
@@ -425,7 +443,7 @@ add_filter( 'woocommerce_product_single_add_to_cart_text', 'woo_custom_cart_butt
 
 function woo_custom_cart_button_text() {
  
-        return __( 'Add to My Library', 'woocommerce' );
+        return __( 'Add This to My Library', 'woocommerce' );
 }
 
 

@@ -1,17 +1,20 @@
 <?php
-
-// =============================================================================
-// WOOCOMMERCE/SINGLE-PRODUCT/PRODUCT-IMAGE.PHP
-// -----------------------------------------------------------------------------
-// @version 2.6.3
-// =============================================================================
-
-// Template Changes
-// ----------------
-// 01. Add product sale flash.
-// 02. Add classes to linked image (.x-img, .x-img-link, .x-img-thumbnail,
-//     and .man).
-// 03. Add class to image (.x-img-thumbnail) and update text domain.
+/**
+ * Single Product Image
+ *
+ * This template can be overridden by copying it to yourtheme/woocommerce/single-product/product-image.php.
+ *
+ * HOWEVER, on occasion WooCommerce will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
+ * @see 	    https://docs.woocommerce.com/document/template-structure/
+ * @author 		WooThemes
+ * @package 	WooCommerce/Templates
+ * @version     2.6.3
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -21,7 +24,6 @@ global $post, $product;
 ?>
 <div class="images">
 	<?php
-	  woocommerce_show_product_sale_flash(); // 01
 		if ( has_post_thumbnail() ) {
 			$attachment_count = count( $product->get_gallery_attachment_ids() );
 			$gallery          = $attachment_count > 0 ? '[product-gallery]' : '';
@@ -33,7 +35,7 @@ global $post, $product;
 			echo apply_filters(
 				'woocommerce_single_product_image_html',
 				sprintf(
-					'<a href="%s" itemprop="image" class="woocommerce-main-image zoom x-img x-img-link x-img-thumbnail man" title="%s" data-rel="prettyPhoto%s">%s</a>', // 02
+					'<a href="%s" itemprop="image" class="woocommerce-main-image zoom" title="%s" data-rel="prettyPhoto%s">%s</a>',
 					esc_url( $props['url'] ),
 					esc_attr( $props['caption'] ),
 					$gallery,
@@ -42,7 +44,7 @@ global $post, $product;
 				$post->ID
 			);
 		} else {
-			echo apply_filters( 'woocommerce_single_product_image_html', sprintf( '<img src="%s" class="x-img-thumbnail" alt="%s" />', wc_placeholder_img_src(), __( 'Placeholder', '__x__' ) ), $post->ID ); // 03
+			echo apply_filters( 'woocommerce_single_product_image_html', sprintf( '<img src="%s" alt="%s" />', wc_placeholder_img_src(), __( 'Placeholder', 'woocommerce' ) ), $post->ID );
 		}
 
 		do_action( 'woocommerce_product_thumbnails' );
