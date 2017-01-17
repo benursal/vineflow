@@ -1,6 +1,6 @@
 jQuery(function($){
 	
-	//alert( app.max_items_in_cart );
+	$('.h-landmark span').text( 'Content Library for ' + app.library_month );
 	
 	$('body').prepend('<div class="loader-container"><div class="loader"></div></div>');
 	

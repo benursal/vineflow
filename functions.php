@@ -182,24 +182,43 @@ remove_action( 'woocommerce_before_shop_loop', 'woocommerce_result_count', 20 );
 function cloudways_product_subcategories( $args = array() ) 
 {
 	$parentid = get_queried_object_id();
-    //echo $parentid;
-	//$args = array(
-		//'parent' => $parentid
-	//);
+   
+   
+	if( has_existing_order() && next_month_library_exists() )
+	{
+		if( isset($_REQUEST['month']) && $_REQUEST['month'] != date('m-Y'))
+		{
+			$month = str_replace('-', '/', $_REQUEST['month']);
+		}
+		else
+		{
+			$d = new DateTime();
+			$d->modify( 'last day of next month' );
+			$month = $d->format( 'm/Y' );
+		}
+		
+		//echo $month;
+	}
+	else
+	{
+		$month = date('m/Y');
+	}
 	
+	$tax_query = array(	
+		array(
+			'taxonomy'     => 'libraries',
+			'field'   => 'name',
+			'terms' => $month,
+		)
+	);
+	
+   
 	// get products
 	$products_array = get_posts( 
 		array(
 			'post_type' => 'product', 
 			'posts_per_page' => -1,
-			'meta_query' => array(
-				'relation' => 'AND',
-				array(
-					'key'     => 'wccaf_date_of_library',
-					'value'   => date('Y-m'),
-					'compare' => '>',
-				)
-			)
+			'tax_query' => $tax_query
 		) 
 	);
 	
@@ -219,10 +238,25 @@ function cloudways_product_subcategories( $args = array() )
 					//show_pre( $term );
 				$class = ( $parentid == $term->term_id ) ? 'selected' : '';
 				
+				/* $tax_query[1] = array(
+					'taxonomy' => 'product_cat',
+					'terms' => $term->term_id,
+					'operator' => '=',
+				); */
+				
+				$prods = get_posts( 
+					array(
+						'post_type' => 'product', 
+						'product_cat' => $term->slug,
+						'posts_per_page' => -1,
+						'tax_query' => $tax_query
+					) 
+				);
+	
 				echo '<li class="' . $class . '">';                 
 					
 				echo '<a href="' .  esc_url( get_term_link( $term ) ) . '" class="' . $term->slug . '">';
-					echo $term->name . ' (' . $term->count . ')';
+					echo $term->name . ' (' . count( $prods ) . ')';
 				echo '</a>';
 																		 
 				echo '</li>';
@@ -268,7 +302,7 @@ function lime_after_shop_loop_item()
 add_filter( 'woocommerce_order_button_text', 'woo_custom_order_button_text' ); 
 
 function woo_custom_order_button_text() {
-    return __( 'Save Items to My Library', 'woocommerce' ); 
+    return __( 'Save Catalog', 'woocommerce' ); 
 }
 
 
@@ -289,11 +323,23 @@ add_action( 'woocommerce_add_cart_item_data', 'save_name_on_item_field', 10, 2 )
 
 function my_assets() {
 	
+	if( has_existing_order() && next_month_library_exists() )
+	{
+		$d = new DateTime();
+		$d->modify( 'last day of next month' );
+		$month = $d->format( 'F' );
+	}
+	else
+	{
+		$month = date('F');
+	}
+	
 	wp_enqueue_script( 'app_code', get_stylesheet_directory_uri() . '/js/app.js?ver='.date('YmdHis') );
 	wp_localize_script( 'app_code', 'app', array(
 		'ajax_url' => admin_url( 'admin-ajax.php' ),
 		'max_items_in_cart' => get_option('ywmmq_cart_maximum_quantity'),
-		'item_count' => WC()->cart->get_cart_contents_count()
+		'item_count' => WC()->cart->get_cart_contents_count(),
+		'library_month' => $month
 	));
 }
 
@@ -465,10 +511,16 @@ function ad_filter_menu($sorted_menu_objects, $args)
 		foreach( $sorted_menu_objects as $menu_obj )
 		{
 			
-			if( $menu_obj->url != site_url('shop').'/' && $menu_obj->url != site_url('cart').'/' )
+			if( $menu_obj->url == site_url('my-account/?month=next') && $existing_order > 1 )
 			{
 				$new_menu_objects[] = $menu_obj;
-				
+			}
+			else
+			{
+				if( $menu_obj->url != site_url('shop').'/' && $menu_obj->url != site_url('cart').'/' && $menu_obj->url != site_url('my-account/?month=next') )
+				{
+					$new_menu_objects[] = $menu_obj;
+				}
 			}
 			
 		}
@@ -601,4 +653,12 @@ function create_library_hierarchical_taxonomy() {
     'rewrite' => array( 'slug' => 'library' ),
   ));
 
+}
+
+add_filter( 'woocommerce_page_title', 'woo_shop_page_title');
+
+function woo_shop_page_title( $page_title ) {
+
+	return "My new title";
+		
 }
