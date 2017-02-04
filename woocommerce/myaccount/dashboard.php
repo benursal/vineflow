@@ -108,29 +108,35 @@ $the_order_id = ( isset( $_REQUEST['order'] ) ) ? $_REQUEST['order'] : $my_catal
 				}
 			}
 			
-			if( count( $month_links ) == 1 )
+			if( count( $month_links ) > 0 )
 			{
-				$heading = 'New Content Library Available!';
-				$month_links_str = $month_links;
+				if( count( $month_links ) == 1 )
+				{
+					$heading = 'New Content Library Available!';
+					$month_links_str = $month_links[0];
+					$linking_verb = 'is';
+				}
+				elseif( count( $month_links ) == 2 )
+				{
+					$month_links_str = implode(' and ', $month_links );
+					$heading = 'New Content Libraries Available!';
+					$linking_verb = 'are';
+				}
+				elseif( count( $month_links ) > 2 )
+				{
+					$month_links_str = implode(', ', $month_links );
+					$heading = 'New Content Libraries Available!';
+					$linking_verb = 'are';
+				}
+				
+				//echo $month_links_str;
+				
+				//show_pre( $next_month_libraries );
+				
+				echo do_shortcode('[alert type="success" close="true" heading="'.$heading.'"]We\'re pleased to announce that the content library for <strong>'. $month_links_str . '</strong> '.$linking_verb.' now available.[/alert]');
+				
+				//<p style="text-align:center; margin-top:20px;"><a href="'.site_url('shop').'/?month='.$next_month_param.'" class="button">Click here to view library</a></p>[/alert]');
 			}
-			elseif( count( $month_links ) == 2 )
-			{
-				$month_links_str = implode(' and ', $month_links );
-				$heading = 'New Content Libraries Available!';
-			}
-			elseif( count( $month_links ) > 2 )
-			{
-				$month_links_str = implode(', ', $month_links );
-				$heading = 'New Content Libraries Available!';
-			}
-			
-			//echo $month_links_str;
-			
-			//show_pre( $next_month_libraries );
-			
-			echo do_shortcode('[alert type="success" close="true" heading="'.$heading.'"]We\'re pleased to announce that the content library for <strong>'. $month_links_str . '</strong> is/are now available.[/alert]');
-			
-			//<p style="text-align:center; margin-top:20px;"><a href="'.site_url('shop').'/?month='.$next_month_param.'" class="button">Click here to view library</a></p>[/alert]');
 		}
 		
 	}

@@ -39,20 +39,68 @@ function orderSession() {
         session_start();
     }
 	
-	if( is_shop() )
+	if( is_shop() || is_product_category() )
 	{
 		if( isset($_REQUEST['order_library']) )
 		{
-			$_SESSION['order_library'] = $_REQUEST['order_library'];
+			//$_SESSION['order_library'] = $_REQUEST['order_library'];
+			$order_library = $_REQUEST['order_library'];
 		}
 		else
 		{
-			$_SESSION['order_library'] = date('m-Y');
+			//$_SESSION['order_library'] = date('m-Y');
+			$order_library = date('m-Y');
+		}
+		
+		$catalog = catalog_exists($order_library);
+		
+		if( $catalog )
+		{
+			wp_redirect( site_url('my-account') .'?order='.$catalog[0]->ID );
 		}
 	}
+	else
+	{
+		$order_library = $_SESSION['order_library'];
+	}
 	
-	 
+	// Check if catalog exists
+	// if it does, redirect to account page
+	//echo 'sdf'.$_SESSION['order_library'].'<br />';
+	//echo $order_library;
+	
+	// if the new order library is not the same as the one saved in th session
+	if( $_SESSION['order_library'] != $order_library )
+	{
+		//echo 'ttt';
+		// clear cart
+		WC()->cart->empty_cart(); 
+	}
+	
+	$_SESSION['order_library'] = $order_library; 
 	//$wp_session = WP_Session::get_instance();
+	
+}
+
+function catalog_exists( $order_library )
+{
+	$customer_orders = new WP_Query( array(
+		'posts_per_page ' => 1,
+		'meta_key'    => '_customer_user',
+		'meta_value'  => get_current_user_id(),
+		'post_type'   => wc_get_order_types(),
+		'post_status' => array_keys( wc_get_order_statuses() ),
+		'order'		  => 'ASC',
+		'meta_query' => array(
+			array(
+				'key'     => 'order_library',
+				'value'   => str_replace('-', '/', $order_library)
+			),
+		),
+		
+	));
+	
+	return $customer_orders->posts;
 	
 }
 
@@ -279,9 +327,9 @@ function cloudways_product_subcategories( $args = array() )
    
 	if( has_existing_order() && next_month_library_exists() )
 	{
-		if( isset($_REQUEST['month']) && $_REQUEST['month'] != date('m-Y'))
+		if( isset($_REQUEST['order_library']) && $_REQUEST['order_library'] != date('m-Y'))
 		{
-			$month = str_replace('-', '/', $_REQUEST['month']);
+			$month = str_replace('-', '/', $_REQUEST['order_library']);
 		}
 		else
 		{
@@ -325,7 +373,7 @@ function cloudways_product_subcategories( $args = array() )
 		echo '<ul class="product-cats">';
 			echo '<li><b>Categories:</b></li>';
 			$class = ( $parentid == 0 ) ? 'selected' : '';
-			echo '<li class="'.$class.'"><a href="'.get_permalink( woocommerce_get_page_id( 'shop' ) ).'">All (' . $total_products . ')</a></li>';
+			echo '<li class="'.$class.'"><a href="'.get_permalink( woocommerce_get_page_id( 'shop' ) ).'?order_library='.$_SESSION['order_library'].'">All (' . $total_products . ')</a></li>';
 			
 			foreach ( $terms as $term ) {
 					//show_pre( $term );
@@ -348,7 +396,7 @@ function cloudways_product_subcategories( $args = array() )
 	
 				echo '<li class="' . $class . '">';                 
 					
-				echo '<a href="' .  esc_url( get_term_link( $term ) ) . '" class="' . $term->slug . '">';
+				echo '<a href="' .  esc_url( get_term_link( $term ) ) . '?order_library='.$_SESSION['order_library'].'" class="' . $term->slug . '">';
 					echo $term->name . ' (' . count( $prods ) . ')';
 				echo '</a>';
 																		 
@@ -643,7 +691,7 @@ function my_custom_checkout_field_update_order_meta( $order_id ) {
 add_action( 'woocommerce_admin_order_data_after_billing_address', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
 
 function my_custom_checkout_field_display_admin_order_meta($order){
-    echo '<p><strong>'.__('Order Library').':</strong> ' . get_post_meta( $order->id, 'order_library', true ) . '</p>';
+    echo '<p><strong>'.__('Order Library').':</strong> <span style="background-color:yellow;padding:4px 10px;font-size:16px;">' . get_post_meta( $order->id, 'order_library', true ) . '</span></p>';
 }
 
 

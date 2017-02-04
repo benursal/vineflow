@@ -36,7 +36,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //show_pre( $_SESSION['tae'] );
 //$wp_session = WP_Session::get_instance();
 
-echo $_SESSION['order_library'];
+//echo $_SESSION['order_library'];
 
 ?>
 
