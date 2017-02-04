@@ -31,6 +31,31 @@ function show_pre( $arr )
 	echo '</pre>';
 }
 
+add_action( 'template_redirect', 'orderSession' );
+
+function orderSession() {
+    
+	if(!session_id()) {
+        session_start();
+    }
+	
+	if( is_shop() )
+	{
+		if( isset($_REQUEST['order_library']) )
+		{
+			$_SESSION['order_library'] = $_REQUEST['order_library'];
+		}
+		else
+		{
+			$_SESSION['order_library'] = date('m-Y');
+		}
+	}
+	
+	 
+	//$wp_session = WP_Session::get_instance();
+	
+}
+
 function woo_in_cart($product_id) {
     global $woocommerce;
  
@@ -126,7 +151,13 @@ function lime_add_to_cart_validation($passed, $product_id, $quantity, $variation
 add_action( 'woocommerce_add_to_cart_validation', 'lime_add_to_cart_validation', 10, 5 );
 
 function lime_check_login_redirect() {
-    if ( is_woocommerce() || is_cart() || is_checkout() || is_product() ) 
+    
+	if( is_home() )
+	{
+		wp_redirect(site_url('my-account'));
+	}
+	
+	if ( is_woocommerce() || is_cart() || is_checkout() || is_product() ) 
 	{
         if( ! is_user_logged_in() )
 		{
@@ -157,11 +188,15 @@ add_action('template_redirect', 'lime_check_login_redirect');
 
 function next_month_library_exists()
 {
-	$d = new DateTime();
+	/* $d = new DateTime();
 	$d->modify( 'last day of next month' );
 	$next_month = strtoupper($d->format( 'm/Y' ));
-	
+	 */
 	//echo $next_month;
+	
+	/* $months = get_next_12_months();
+	
+	unset( $months[0] );
 	
 	$products_array = get_posts( 
 		array(
@@ -172,17 +207,57 @@ function next_month_library_exists()
 					'taxonomy'     => 'libraries',
 					'field'   => 'name',
 					'terms' => $next_month,
+					'operator' => 'IN'
 				)
 			)
 		) 
 	);
 	
-	$total_products = count( $products_array );
+	$total_products = count( $products_array ); */
 	
-	if( $total_products > 0 )
+	$months = get_next_12_months();
+	unset( $months[0] );
+	
+	$terms = get_terms('libraries');
+	
+	foreach( $terms as $term )
 	{
-		return true;
+		$prods = get_posts( 
+			array(
+				'post_type' => 'product', 
+				//'libraries' => $term->slug,
+				'posts_per_page' => -1,
+				'tax_query' => array(	
+					array(
+						'taxonomy'     => 'libraries',
+						'field'   => 'name',
+						'terms' => $term->name,
+					)
+				)
+			) 
+		);
+		
+		//$new_libraries[$term->name] = count( $prods );
+		$new_libraries[] = $term->name;
 	}
+	
+	$key = array_search(date('m/Y'), $new_libraries); 
+	
+	for( $x = $key; $x < count( $new_libraries ); $x++ )
+	{
+		$lib[$new_libraries[$x]] = $new_libraries[$x];
+	}
+	
+	unset( $lib[date('m/Y')] );
+	
+	$new_libraries = $lib;
+	//show_pre( $new_libraries );
+	
+	if( count( $new_libraries ) > 0 )
+	{
+		return $new_libraries;
+	}
+	else
 	{
 		return false;
 	}
@@ -292,7 +367,7 @@ function cloudways_product_subcategories( $args = array() )
 	echo '<div class="the-mini-cart">
 			<p>You have added</p>
 			<h5 style="font-weight:bold"><b id="cart_item_count">'.WC()->cart->get_cart_contents_count().'</b> item(s)</h5>
-			<h4>Please add <b id="cart_num_items_needed">'.(get_option('ywmmq_cart_maximum_quantity') - WC()->cart->get_cart_contents_count()).'</b> more items</h4>
+			<h4>Please add <b id="cart_num_items_needed">'.(get_option('ywmmq_cart_maximum_quantity') - WC()->cart->get_cart_contents_count()).'</b> more items to fill your catalog</h4>
 			<a href="'.site_url('cart').'">View Your Library</a>
 		  </div>';
 	
@@ -320,7 +395,7 @@ function lime_after_shop_loop_item()
 add_filter( 'woocommerce_order_button_text', 'woo_custom_order_button_text' ); 
 
 function woo_custom_order_button_text() {
-    return __( 'Save Catalog', 'woocommerce' ); 
+    return __( 'Yes, looks good!', 'woocommerce' ); 
 }
 
 
@@ -352,13 +427,17 @@ function my_assets() {
 		$month = date('F');
 	}
 	
-	wp_enqueue_script( 'app_code', get_stylesheet_directory_uri() . '/js/app.js?ver='.date('YmdHis') );
+	wp_enqueue_script( 'app_code', get_stylesheet_directory_uri() . '/js/app.js', array(), null );
 	wp_localize_script( 'app_code', 'app', array(
 		'ajax_url' => admin_url( 'admin-ajax.php' ),
+		'account_url' => site_url( 'my-account' ),
 		'max_items_in_cart' => get_option('ywmmq_cart_maximum_quantity'),
 		'item_count' => WC()->cart->get_cart_contents_count(),
 		'library_month' => $month
 	));
+	
+    wp_enqueue_style( 'the-styles', get_stylesheet_directory_uri() . '/the-styles.css', array(), null );
+	
 }
 
 
@@ -443,7 +522,7 @@ add_filter( 'woocommerce_product_single_add_to_cart_text', 'woo_custom_cart_butt
 
 function woo_custom_cart_button_text() {
  
-        return __( 'Add This to My Library', 'woocommerce' );
+        return __( 'Add This to My Content Catalog', 'woocommerce' );
 }
 
 
@@ -502,6 +581,71 @@ function has_existing_order()
 	
 	return count( $customer_orders->posts );
 }
+
+function get_next_12_months()
+{
+	$d = new DateTime();
+
+	$months[] = date('m/Y');
+		
+	for( $x = 1; $x <= 12; $x++ )
+	{
+		$d->modify( '+1 month' );
+		$month = $d->format( 'm/Y' );
+
+		$months[] = $month;
+	}
+	
+	return $months;
+}
+
+function get_my_catalogs()
+{
+	
+	$months = get_next_12_months();
+	
+	$customer_orders = new WP_Query( array(
+		'posts_per_page ' => 1,
+		'meta_key'    => '_customer_user',
+		'meta_value'  => get_current_user_id(),
+		'post_type'   => wc_get_order_types(),
+		'post_status' => array_keys( wc_get_order_statuses() ),
+		'order'		  => 'ASC',
+		'meta_query' => array(
+			array(
+				'key'     => 'order_library',
+				'value'   => $months,
+				'compare' => 'IN'
+			),
+		),
+		
+	));
+	
+	return $customer_orders->posts;
+
+}
+
+
+add_action('woocommerce_checkout_update_order_meta', 'my_custom_checkout_field_update_order_meta');
+
+function my_custom_checkout_field_update_order_meta( $order_id ) {
+	
+	if(!session_id()) {
+        session_start();
+    }
+	
+	update_post_meta( $order_id, 'order_library', str_replace('-', '/', $_SESSION['order_library']) );
+}
+
+/**
+ * Display field value on the order edit page
+ */
+add_action( 'woocommerce_admin_order_data_after_billing_address', 'my_custom_checkout_field_display_admin_order_meta', 10, 1 );
+
+function my_custom_checkout_field_display_admin_order_meta($order){
+    echo '<p><strong>'.__('Order Library').':</strong> ' . get_post_meta( $order->id, 'order_library', true ) . '</p>';
+}
+
 
 add_filter('wp_nav_menu_objects', 'ad_filter_menu', 10, 2);
 
@@ -587,9 +731,9 @@ function future_products( $query )
 		
 		if( has_existing_order() && next_month_library_exists() )
 		{
-			if( isset($_REQUEST['month']) && $_REQUEST['month'] != date('m-Y'))
+			if( isset($_REQUEST['order_library']) && $_REQUEST['order_library'] != date('m-Y'))
 			{
-				$month = str_replace('-', '/', $_REQUEST['month']);
+				$month = str_replace('-', '/', $_REQUEST['order_library']);
 			}
 			else
 			{
@@ -680,3 +824,4 @@ function woo_shop_page_title( $page_title ) {
 	return "My new title";
 		
 }
+

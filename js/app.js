@@ -1,6 +1,7 @@
 jQuery(function($){
 	
-	$('.h-landmark span').text( 'Content Library for ' + app.library_month );
+	//$('.h-landmark span').text( 'Content Library for ' + app.library_month );
+	$('.h-landmark span').text( 'Welcome, great content is now as easy as one, two, three: ');
 	
 	$('body').prepend('<div class="loader-container"><div class="loader"></div></div>');
 	
@@ -142,4 +143,8 @@ jQuery(function($){
 			//$('.added-item .remove-from-cart').show();
 		}
 	}
+	
+	$('select[name="my_catalogs"]').change(function(){
+		document.location = app.account_url + '?order=' + this.value;
+	});
 });

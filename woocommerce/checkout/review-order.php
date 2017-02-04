@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<thead>
 		<tr>
 			<th class="product-name"><?php _e( 'Content Item', 'woocommerce' ); ?></th>
-			<th class="product-total"><?php _e( 'Item Description', 'woocommerce' ); ?></th>
+			<th class="product-total"><?php _e( 'Wine Notes (<i>if applicable</i>)', 'woocommerce' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -60,9 +60,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php
 				}
 			}
-
+			
 			do_action( 'woocommerce_review_order_after_cart_contents' );
 		?>
+		
 	</tbody>
-	
 </table>
+<?php if( !is_ajax() ) : ?>
+<p class="lime-note">
+	Submit Content for Final Production
+</p>
+<?php endif; ?>

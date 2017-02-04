@@ -31,7 +31,7 @@ $show_customer_details = is_user_logged_in() && $order->get_user_id() === get_cu
 		<tr>
 			<th class="product-image"><?php _e( 'Image', 'woocommerce' ); ?></th>
 			<th class="product-name"><?php _e( 'Name', 'woocommerce' ); ?></th>
-			<th class="product-total"><?php _e( 'Your Description', 'woocommerce' ); ?></th>
+			<th class="product-total"><?php _e( 'Wine Notes (<i>if applicable</i>)', 'woocommerce' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>

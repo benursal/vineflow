@@ -34,7 +34,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 //$wp_session = WP_Session::get_instance();
 //$_SESSION['tae'] = 'sdf';
 //show_pre( $_SESSION['tae'] );
+//$wp_session = WP_Session::get_instance();
 
+echo $_SESSION['order_library'];
+
+?>
+
+<div class="woocommerce-error x-alert x-alert-info x-alert-block">
+	<strong style="font-size:18px">Note:</strong><br />
+	If any of your content selections require bottle customization, please specificy your preference(s) in the wine notes.
+	<br />
+	Feel free to leave any blank if you have no preference.  In that event, we'll opt for a variety of bottles during final production.
+</div>
+
+
+<?php
 wc_print_notices();
 
 do_action( 'woocommerce_before_cart' ); ?>
@@ -49,7 +63,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 			<th class="product-remove">&nbsp;</th>
 			<th class="product-thumbnail">&nbsp;</th>
 			<th class="product-name"><?php _e( 'Name', 'woocommerce' ); ?></th>
-			<th class="product-custom-description"><?php _e( 'Custom Description', 'woocommerce' ); ?></th>
+			<th class="product-custom-description"><?php _e( 'Wine Notes (<i>if applicable</i>)', 'woocommerce' ); ?></th>
 			
 		</tr>
 	</thead>
@@ -153,7 +167,7 @@ do_action( 'woocommerce_before_cart' ); ?>
 			<td colspan="6" style="text-align:right" class="">
 				<!--<a class="button" href="<?php echo WC()->cart->get_cart_url(); ?>?empty-cart"><?php _e( 'Empty Cart', 'woocommerce' ); ?></a>-->
 				
-				<a href="<?php echo site_url('shop');?>">Continue Selecting</a>
+				<a href="<?php echo site_url('shop').'/?order_library='.$_SESSION['order_library'];?>">Continue Selecting</a>
 				
 				<input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update', 'woocommerce' ); ?>" />
 				

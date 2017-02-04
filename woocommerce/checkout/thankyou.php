@@ -43,7 +43,7 @@ if ( $order ) : ?>
 
 	<?php else : ?>
 
-		<h2 class="woocommerce-thankyou-order-received" style="margin-top:0"><?php echo apply_filters( 'woocommerce_thankyou_order_received_text', __( 'You have successfully created a new content catalog!', 'woocommerce' ), $order ); ?></h2>
+		<h2 class="woocommerce-thankyou-order-received" style="margin-top:0"><?php echo apply_filters( 'woocommerce_thankyou_order_received_text', __( 'Congrats!<br />Once your customized content is ready, we will upload it to your dashboard to go live.', 'woocommerce' ), $order ); ?></h2>
 		<br />
 		<p>
 			<a href="<?php echo site_url('my-account');?>" class="button">Go to My Content Catalog</a>
